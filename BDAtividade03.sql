@@ -143,6 +143,8 @@ VALUES (301, TO_DATE('2023-05-01', 'YYYY-MM-DD'), 201, TO_DATE('2023-05-03', 'YY
 INSERT INTO LOCACOES (locacao, dt_locacao, cliente, dt_devolucao) 
 VALUES (302, TO_DATE('2023-06-10', 'YYYY-MM-DD'), 202, TO_DATE('2023-06-12', 'YYYY-MM-DD'));
 
+INSERT INTO LOCACOES (locacao, dt_locacao, cliente, dt_devolucao) 
+VALUES (303, TO_DATE('2023-06-10', 'YYYY-MM-DD'), 202, TO_DATE('2023-06-12', 'YYYY-MM-DD'));
 --ITENS_LOCACOES
 INSERT INTO ITENS_LOCACAO (locacao, filme, desconto) 
 VALUES (301, 101, 0.00);  -- Locação de 'Missão Impossível' por João Silva
@@ -151,7 +153,7 @@ INSERT INTO ITENS_LOCACAO (locacao, filme, desconto)
 VALUES (301, 103, 5.00);  -- Locação de 'O Poderoso Chefão' com desconto
 
 INSERT INTO ITENS_LOCACAO (locacao, filme, desconto) 
-VALUES (302, 102, 0.00);  -- Locação de 'Os Vingadores' por Maria Souza
+VALUES (305, 102, 0.00);  -- Locação de 'Os Vingadores' por Maria Souza
 
 --ATORES
 INSERT INTO ATORES (ator, nome) 
@@ -184,7 +186,7 @@ CHECK (valor>= 2.5);
 
 ALTER TABLE FILMES
 ADD CONSTRAINT ck_data_compra
-CHECK (dt_compra >= TO_DATE('10-01-2020', 'DD-MM-YYYY'));
+CHECK (dt_compra >= TO_DATE('10-01-2020', 'DD-MM-YY'));
 
 ALTER TABLE LOCACOES
 ADD CONSTRAINT ck_data_locacao
@@ -199,9 +201,9 @@ DROP CONSTRAINT ck_data_compra;
 ALTER TABLE LOCACOES
 DROP CONSTRAINT ck_data_locacao;
 --ATIVIDADE 06
-SELECT filme, nome
-FROM FILMES
-JOIN GENEROS ON GENEROS.genero = FILMES.genero
+SELECT F.filme, F.nome
+FROM FILMES F
+JOIN GENEROS ON GENEROS.genero = F.genero
 WHERE GENEROS.descricao = 'ação';
 
 --ATIVIDADE 07
@@ -214,7 +216,7 @@ INSERT INTO FILMES (filme, nome, genero, preco, dt_compra, hrs_devolucao)
 VALUES (106, 'Título do Documentário', 6, 1, TO_DATE('2023-09-15', 'YYYY-MM-DD'), 72);
 INSERT INTO FILME_ATOR (filme, ator) VALUES (106, 404);  -- Pedro Silva
 INSERT INTO FILME_ATOR (filme, ator) VALUES (106, 405);  -- Mara Souza
---ATIVIDADE
+--ATIVIDADE 07
 
 SELECT F.filme, F.nome
 FROM FILMES F
@@ -226,3 +228,194 @@ WHERE G.descricao = 'Documentário'
 GROUP BY F.filme, F.nome
 HAVING COUNT(DISTINCT A.nome) = 2;
 
+--ATIVIDADE 08
+SELECT C.cliente, C.nome, C.endereco, C.fone, C.cidade
+FROM CLIENTES C
+WHERE C.nome like 'ant%' AND C.cidade = 'maresias';
+
+--ATIVIDADE 09
+SELECT F.filme, F.nome
+FROM FILMES F
+JOIN GENEROS G ON G.genero = F.genero
+where G.descricao = 'Policial' 
+AND F.hrs_devolucao = 24;
+
+--ATIVIDADE 10
+SELECT F.filme, F.nome, P.preco, P.categoria
+FROM FILMES F
+JOIN PRECOS P  ON P.preco = F.preco
+WHERE P.valor >3.50;
+
+--ATIVIDADE 11
+SELECT F.filme, F.nome, A.ator, A.nome
+FROM FILMES F
+JOIN FILME_ATOR FA ON FA.filme = F.filme
+JOIN ATORES A ON A.ator = FA.ator
+JOIN PRECOS P ON P.preco = F.preco
+WHERE P.valor < 2.00;
+
+--ATIVIDADE 12
+SELECT C.cliente, C.nome
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente
+JOIN ITENS_LOCACAO IL ON IL.locacao = L.locacao
+JOIN FILMES F ON F.filme = IL.filme
+JOIN GENEROS G ON G.genero = F.genero
+WHERE G.descricao = 'épico';
+
+--ATIVIDADE 13
+SELECT A.ator, A.nome
+FROM ATORES A
+JOIN FILME_ATOR FA ON FA.ator = A.ator
+JOIN FILMES F ON F.filme = FA.filme
+WHERE F.genero = 4;
+
+--ATIVIDADE 14
+SELECT F.filme, F.nome, G.descricao, F.dt_compra
+FROM FILMES F
+JOIN GENEROS G ON G.genero = F.genero
+WHERE F.dt_compra BETWEEN TO_DATE('01-01-2021', 'DD-MM-YY') AND TO_DATE('31-12-2021', 'DD-MM-YY')
+AND G.descricao = 'adulto';
+
+--ATIVIDADE 15
+SELECT L.locacao, L.dt_locacao
+FROM LOCACOES L
+JOIN CLIENTES C ON C.cliente = L.cliente
+WHERE C.nome = 'ana terra'
+AND L.dt_locacao BETWEEN TO_DATE('01-01-2020', 'DD-MM-YY') AND TO_DATE('31-12-2020', 'DD-MM-YY');
+
+--ATIVIDADE 16
+SELECT L.locacao, L.dt_locacao, F.filme, F.nome
+FROM LOCACOES L
+JOIN ITENS_LOCACAO IL ON IL.locacao = L.locacao
+JOIN FILMES F ON F.filme = IL.filme
+JOIN CLIENTES C ON C.cliente = L.cliente
+WHERE C.nome = 'jorge tabajara'
+    AND L.dt_locacao BETWEEN TO_DATE('01-01-2020', 'DD-MM-YY') AND TO_DATE('30-06-2020', 'DD-MM-YY')
+ORDER BY L.dt_locacao;
+
+--ATIVIDADE 17
+SELECT C.nome, L.dt_locacao
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente
+WHERE L.dt_locacao BETWEEN TO_DATE('01-09-2020', 'DD-MM-YY')
+    AND TO_DATE('30-09-2020', 'DD-MM-YY');
+
+--ATIVIDADE 18
+SELECT F.filme, F.nome, L.dt_locacao
+FROM FILMES F
+JOIN GENEROS G ON G.genero = F.genero
+JOIN ITENS_LOCACAO IL ON IL.filme = F.filme
+JOIN LOCACOES L ON L.locacao = IL.locacao
+JOIN CLIENTES C ON C.cliente = L.cliente
+WHERE C.nome = 'Antonio ferreira'
+    AND L.dt_locacao BETWEEN TO_DATE('01-07-2020', 'DD-MM-YY') AND TO_DATE('31-07-2020', 'DD-MM-YY')
+        AND G.descricao = 'drama';
+    
+--ATIVIDADE 19
+SELECT G.genero, F.filme, F.nome
+FROM FILMES F
+JOIN GENEROS G ON G.genero = F.genero
+ORDER BY G.genero;
+
+--ATIVIDADE 20
+SELECT F.nome, F.filme, A.nome
+FROM FILMES F
+JOIN FILME_ATOR FA ON FA.filme = F.filme
+JOIN ATORES A ON A.ator = FA.ator
+JOIN GENEROS G ON G.genero = F.genero
+WHERE G.descricao = 'comédia';
+
+--ATIVIDADE 21
+--ADICIONANDO INFORMAÇÕES
+INSERT INTO CLIENTES (cliente, nome, endereco, fone, cidade) 
+VALUES (205, 'Pedro Augusto', 'Rua B, 123', '9799-9999', 'São Paulo');
+
+INSERT INTO CLIENTES (cliente, nome, endereco, fone, cidade) 
+VALUES (206, 'Marina Oliveira', 'Rua C, 123', '8999-9999', 'Uberaba');
+
+INSERT INTO LOCACOES (locacao, dt_locacao, cliente, dt_devolucao) 
+VALUES (305, TO_DATE('2023-06-11', 'YYYY-MM-DD'), 205, TO_DATE('2023-06-13', 'YYYY-MM-DD'));
+
+SELECT DISTINCT C.cidade
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente;
+
+--ATIVIDADE 22
+SELECT C.cidade, COUNT(C.cliente)
+FROM CLIENTES C
+GROUP BY C.cidade;
+
+--ATIVIDADE 23
+
+SELECT c.cliente, c.nome
+FROM CLIENTES c
+LEFT JOIN LOCACOES l ON l.cliente = c.cliente
+WHERE l.locacao IS NULL;
+
+--ATIVIDADE 24
+SELECT C.cliente, C.nome
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente
+JOIN ITENS_LOCACAO IL ON IL.locacao = L.locacao
+JOIN FILMES F ON F.filme = IL.filme
+WHERE F.nome = 'a espera de um milagre';
+
+--ATIVIDADE 25
+SELECT F.filme, F.nome
+FROM FILMES F
+LEFT JOIN ITENS_LOCACAO IL ON IL.filme = F.filme
+LEFT JOIN LOCACOES L ON L.locacao = IL.locacao
+WHERE L.locacao IS NULL;
+
+--ATIVIDADE 26
+SELECT F.filme, F.nome
+FROM FILMES F
+LEFT JOIN ITENS_LOCACAO IL ON IL.filme = F.filme
+LEFT JOIN LOCACOES L ON L.locacao = IL.locacao
+WHERE L.locacao IS NULL
+AND F.dt_compra BETWEEN TO_DATE('01-01-2020','DD-MM-YY') AND TO_DATE('31-12-2020', 'DD-MM-YY');
+
+--ATIVIDADE 27
+SELECT AVG(filmes_por_locacao) AS media_filmes
+FROM (SELECT COUNT(IL.filme) as filmes_por_locacao
+    FROM LOCACOES L
+    JOIN ITENS_LOCACAO IL ON IL.locacao = L.locacao
+    WHERE L.dt_locacao BETWEEN TO_DATE('01-01-2020','DD-MM-YY') AND TO_DATE('31-12-2020', 'DD-MM-YY')
+    GROUP BY L.locacao);
+
+--ATIVIDADE 28
+SELECT COUNT(filmes_locados)
+FROM (SELECT DISTINCT IL.filme as filmes_locados
+    FROM ITENS_LOCACAO IL
+    JOIN LOCACOES L ON L.locacao = IL.locacao
+    WHERE EXTRACT(YEAR FROM L.dt_locacao) = 2020
+    GROUP BY IL.filme);
+
+--ATIVIDADE 29
+SELECT C.cliente, COUNT(L.locacao)
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente
+GROUP BY C.cliente;
+
+--ATIVIDADE 30
+SELECT C.cliente, COUNT(IL.filme) as total_filmes
+FROM CLIENTES C
+JOIN LOCACOES L ON L.cliente = C.cliente
+JOIN ITENS_LOCACAO IL ON IL.locacao = L.locacao
+GROUP BY C.cliente
+ORDER BY total_filmes DESC;
+
+--ATIVIDADE 31
+UPDATE PRECOS P
+SET P.valor = P.valor *1.125
+WHERE P.categoria = (
+    SELECT C.categoria
+    FROM CATEGORIAS C
+    WHERE C.descricao = 'selo ouro'
+    );
+    
+--ATIVIDADE 32
+SELECT F.nome, F.filme, G.descricao, (F.preco * 1.20) as "Com Aumento de 20%"
+FROM FILMES F
+JOIN GENEROS G on G.genero = F.genero;
